@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package pb;
+
+import "github.com/infobloxopen/protoc-gen-gorm/proto/options/gorm.proto";
+
+option go_package = "github.com/sbhagate-infoblox/user.app/pb;pb";
+
+message User {
+    option (gorm.opts) = {
+        ormable: true,
+        multi_account: true
+        multi_compartment: true
+    };
+    string id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
+    string user_name = 2;
+}
+
+message CreateUserRequest {
+    User payload = 1;
+}
+
+message CreateUserResponse {
+    User result = 1;
+}
+
+message ReadUserRequest {
+    string id = 1;
+}
+
+message ReadUserResponse {
+    User result = 1;
+}
+
+message UpdateUserRequest {
+    User payload = 1;
+}
+
+message UpdateUserResponse {
+    User result = 1;
+}
+
+message DeleteUserRequest {
+    string id = 1;
+}
+
+message DeleteUserResponse{}
+
+message DeleteUserSetRequest {
+    repeated string ids = 1;
+}
+
+message DeleteUserSetResponse{}
+
+service Users {
+    option (gorm.server) = {
+      autogen: true,
+      txn_middleware: true,
+    };
+
+    // Use this method to create a user.
+    rpc Create (CreateUserRequest) returns (CreateUserResponse);
+
+    // Use this method to retrieve the particular user.
+    rpc Read (ReadUserRequest) returns (ReadUserResponse);
+
+    // Use this method to update user.
+    rpc Update (UpdateUserRequest) returns (UpdateUserResponse);
+
+    // Use this method to delete a user.
+    rpc Delete (DeleteUserRequest) returns (DeleteUserResponse) {
+        option (gorm.method).object_type = "User";
+    }
+    rpc DeleteSet (DeleteUserSetRequest) returns (DeleteUserSetResponse) {
+        option (gorm.method).object_type = "User";
+    }
+}

@@ -1,0 +1,107 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "github.com/sbhagate-infoblox/user.app/pb/user.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "pbCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/pbUser",
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": null
+    },
+    "pbDeleteUserResponse": {
+      "type": "object",
+      "additionalProperties": null
+    },
+    "pbDeleteUserSetResponse": {
+      "type": "object",
+      "additionalProperties": null
+    },
+    "pbReadUserResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/pbUser",
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": null
+    },
+    "pbUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/pbUser",
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": null
+    },
+    "pbUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "additionalProperties": null
+        },
+        "userName": {
+          "type": "string",
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": null
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string",
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": {
+        "additionalProperties": null
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "additionalProperties": null
+        },
+        "message": {
+          "type": "string",
+          "additionalProperties": null
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "additionalProperties": null
+        }
+      },
+      "additionalProperties": null
+    }
+  }
+}
