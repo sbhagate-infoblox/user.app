@@ -4,6 +4,7 @@ import (
 	context "context"
 	fmt "fmt"
 	gorm1 "github.com/infobloxopen/atlas-app-toolkit/gorm"
+	resource "github.com/infobloxopen/atlas-app-toolkit/gorm/resource"
 	auth "github.com/infobloxopen/protoc-gen-gorm/auth"
 	errors "github.com/infobloxopen/protoc-gen-gorm/errors"
 	field_mask "google.golang.org/genproto/protobuf/field_mask"
@@ -13,7 +14,7 @@ import (
 type UserORM struct {
 	AccountID     string
 	CompartmentID string
-	Id            string `gorm:"type:uuid;primaryKey"`
+	Id            int64 `gorm:"type:serial;primaryKey"`
 	UserName      string
 }
 
@@ -32,7 +33,11 @@ func (m *User) ToORM(ctx context.Context) (UserORM, error) {
 			return to, err
 		}
 	}
-	to.Id = m.Id
+	if v, err := resource.DecodeInt64(&User{}, m.Id); err != nil {
+		return to, err
+	} else {
+		to.Id = v
+	}
 	to.UserName = m.UserName
 	accountID, err := auth.GetAccountID(ctx, nil)
 	if err != nil {
@@ -60,7 +65,11 @@ func (m *UserORM) ToPB(ctx context.Context) (User, error) {
 			return to, err
 		}
 	}
-	to.Id = m.Id
+	if v, err := resource.Encode(&User{}, m.Id); err != nil {
+		return to, err
+	} else {
+		to.Id = v
+	}
 	to.UserName = m.UserName
 	if posthook, ok := interface{}(m).(UserWithAfterToPB); ok {
 		err = posthook.AfterToPB(ctx, &to)
@@ -132,7 +141,7 @@ func DefaultReadUser(ctx context.Context, in *User, db *gorm.DB) (*User, error) 
 	if err != nil {
 		return nil, err
 	}
-	if ormObj.Id == "" {
+	if ormObj.Id == 0 {
 		return nil, errors.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeReadApplyQuery); ok {
@@ -176,7 +185,7 @@ func DefaultDeleteUser(ctx context.Context, in *User, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	if ormObj.Id == "" {
+	if ormObj.Id == 0 {
 		return errors.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(UserORMWithBeforeDelete_); ok {
@@ -206,13 +215,13 @@ func DefaultDeleteUserSet(ctx context.Context, in []*User, db *gorm.DB) error {
 		return errors.NilArgumentError
 	}
 	var err error
-	keys := []string{}
+	keys := []int64{}
 	for _, obj := range in {
 		ormObj, err := obj.ToORM(ctx)
 		if err != nil {
 			return err
 		}
-		if ormObj.Id == "" {
+		if ormObj.Id == 0 {
 			return errors.EmptyIdError
 		}
 		keys = append(keys, ormObj.Id)
@@ -622,48 +631,4 @@ type UsersUserWithBeforeDelete interface {
 // UsersUserWithAfterDelete called before DefaultDeleteUser in the default Delete handler
 type UsersUserWithAfterDelete interface {
 	AfterDelete(context.Context, *DeleteUserResponse, *gorm.DB) error
-}
-
-// DeleteSet ...
-func (m *UsersDefaultServer) DeleteSet(ctx context.Context, in *DeleteUserSetRequest) (*DeleteUserSetResponse, error) {
-	txn, ok := gorm1.FromContext(ctx)
-	if !ok {
-		return nil, errors.NoTransactionError
-	}
-	db := txn.Begin()
-	if db.Error != nil {
-		return nil, db.Error
-	}
-	objs := []*User{}
-	for _, id := range in.Ids {
-		objs = append(objs, &User{Id: id})
-	}
-	if custom, ok := interface{}(in).(UsersUserWithBeforeDeleteSet); ok {
-		var err error
-		if db, err = custom.BeforeDeleteSet(ctx, db); err != nil {
-			return nil, err
-		}
-	}
-	err := DefaultDeleteUserSet(ctx, objs, db)
-	if err != nil {
-		return nil, err
-	}
-	out := &DeleteUserSetResponse{}
-	if custom, ok := interface{}(in).(UsersUserWithAfterDeleteSet); ok {
-		var err error
-		if err = custom.AfterDeleteSet(ctx, out, db); err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-
-// UsersUserWithBeforeDeleteSet called before DefaultDeleteSetUser in the default DeleteSet handler
-type UsersUserWithBeforeDeleteSet interface {
-	BeforeDeleteSet(context.Context, *gorm.DB) (*gorm.DB, error)
-}
-
-// UsersUserWithAfterDeleteSet called before DefaultDeleteSetUser in the default DeleteSet handler
-type UsersUserWithAfterDeleteSet interface {
-	AfterDeleteSet(context.Context, *DeleteUserSetResponse, *gorm.DB) error
 }

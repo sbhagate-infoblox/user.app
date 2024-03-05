@@ -6,11 +6,42 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	runtime1 "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	resource "github.com/infobloxopen/atlas-app-toolkit/rpc/resource"
 	runtime "github.com/infobloxopen/protoc-gen-atlas-validate/runtime"
 	metadata "google.golang.org/grpc/metadata"
 	ioutil "io/ioutil"
 	http "net/http"
 )
+
+// validate_Users_Create_0 is an entrypoint for validating "POST" HTTP request
+// that match *.pb.gw.go/pattern_Users_Create_0.
+func validate_Users_Create_0(ctx context.Context, r json.RawMessage) (err error) {
+	return validate_Object_User(ctx, r, "")
+}
+
+// validate_Users_Read_0 is an entrypoint for validating "GET" HTTP request
+// that match *.pb.gw.go/pattern_Users_Read_0.
+func validate_Users_Read_0(ctx context.Context, r json.RawMessage) (err error) {
+	if len(r) != 0 {
+		return fmt.Errorf("body is not allowed")
+	}
+	return nil
+}
+
+// validate_Users_Update_0 is an entrypoint for validating "PUT" HTTP request
+// that match *.pb.gw.go/pattern_Users_Update_0.
+func validate_Users_Update_0(ctx context.Context, r json.RawMessage) (err error) {
+	return validate_Object_User(ctx, r, "")
+}
+
+// validate_Users_Delete_0 is an entrypoint for validating "DELETE" HTTP request
+// that match *.pb.gw.go/pattern_Users_Delete_0.
+func validate_Users_Delete_0(ctx context.Context, r json.RawMessage) (err error) {
+	if len(r) != 0 {
+		return fmt.Errorf("body is not allowed")
+	}
+	return nil
+}
 
 // validate_Object_User function validates a JSON for a given object.
 func validate_Object_User(ctx context.Context, r json.RawMessage, path string) (err error) {
@@ -36,6 +67,20 @@ func validate_Object_User(ctx context.Context, r json.RawMessage, path string) (
 	for k, _ := range v {
 		switch k {
 		case "id":
+			if v[k] == nil {
+				continue
+			}
+			vv := v[k]
+			vvPath := runtime.JoinPath(path, k)
+			validator, ok := interface{}(&resource.Identifier{}).(interface {
+				AtlasValidateJSON(context.Context, json.RawMessage, string) error
+			})
+			if !ok {
+				continue
+			}
+			if err = validator.AtlasValidateJSON(ctx, vv, vvPath); err != nil {
+				return err
+			}
 		case "user_name":
 		default:
 			if !allowUnknown {
@@ -206,6 +251,20 @@ func validate_Object_ReadUserRequest(ctx context.Context, r json.RawMessage, pat
 	for k, _ := range v {
 		switch k {
 		case "id":
+			if v[k] == nil {
+				continue
+			}
+			vv := v[k]
+			vvPath := runtime.JoinPath(path, k)
+			validator, ok := interface{}(&resource.Identifier{}).(interface {
+				AtlasValidateJSON(context.Context, json.RawMessage, string) error
+			})
+			if !ok {
+				continue
+			}
+			if err = validator.AtlasValidateJSON(ctx, vv, vvPath); err != nil {
+				return err
+			}
 		default:
 			if !allowUnknown {
 				return fmt.Errorf("unknown field %q.", runtime.JoinPath(path, k))
@@ -434,6 +493,20 @@ func validate_Object_DeleteUserRequest(ctx context.Context, r json.RawMessage, p
 	for k, _ := range v {
 		switch k {
 		case "id":
+			if v[k] == nil {
+				continue
+			}
+			vv := v[k]
+			vvPath := runtime.JoinPath(path, k)
+			validator, ok := interface{}(&resource.Identifier{}).(interface {
+				AtlasValidateJSON(context.Context, json.RawMessage, string) error
+			})
+			if !ok {
+				continue
+			}
+			if err = validator.AtlasValidateJSON(ctx, vv, vvPath); err != nil {
+				return err
+			}
 		default:
 			if !allowUnknown {
 				return fmt.Errorf("unknown field %q.", runtime.JoinPath(path, k))
@@ -535,6 +608,26 @@ func validate_Object_DeleteUserSetRequest(ctx context.Context, r json.RawMessage
 	for k, _ := range v {
 		switch k {
 		case "ids":
+			if v[k] == nil {
+				continue
+			}
+			var vArr []json.RawMessage
+			vArrPath := runtime.JoinPath(path, k)
+			if err = json.Unmarshal(v[k], &vArr); err != nil {
+				return fmt.Errorf("invalid value for %q: expected array.", vArrPath)
+			}
+			validator, ok := interface{}(&resource.Identifier{}).(interface {
+				AtlasValidateJSON(context.Context, json.RawMessage, string) error
+			})
+			if !ok {
+				continue
+			}
+			for i, vv := range vArr {
+				vvPath := fmt.Sprintf("%s.[%d]", vArrPath, i)
+				if err = validator.AtlasValidateJSON(ctx, vv, vvPath); err != nil {
+					return err
+				}
+			}
 		default:
 			if !allowUnknown {
 				return fmt.Errorf("unknown field %q.", runtime.JoinPath(path, k))
@@ -619,11 +712,47 @@ var validate_Patterns = []struct {
 	// Included for introspection purpose.
 	allowUnknown bool
 }{
+	// patterns for file github.com/infobloxopen/atlas-app-toolkit/rpc/resource/resource.proto
+
 	// patterns for file github.com/infobloxopen/protoc-gen-gorm/proto/options/gorm.proto
 
 	// patterns for file github.com/sbhagate-infoblox/user.app/pb/user.proto
+	{
+		pattern:      pattern_Users_Create_0,
+		httpMethod:   "POST",
+		validator:    validate_Users_Create_0,
+		allowUnknown: false,
+	},
+	{
+		pattern:      pattern_Users_Read_0,
+		httpMethod:   "GET",
+		validator:    validate_Users_Read_0,
+		allowUnknown: false,
+	},
+	{
+		pattern:      pattern_Users_Update_0,
+		httpMethod:   "PUT",
+		validator:    validate_Users_Update_0,
+		allowUnknown: false,
+	},
+	{
+		pattern:      pattern_Users_Delete_0,
+		httpMethod:   "DELETE",
+		validator:    validate_Users_Delete_0,
+		allowUnknown: false,
+	},
+
+	// patterns for file google/api/annotations.proto
+
+	// patterns for file google/api/http.proto
 
 	// patterns for file google/protobuf/descriptor.proto
+
+	// patterns for file google/protobuf/struct.proto
+
+	// patterns for file protoc-gen-openapiv2/options/annotations.proto
+
+	// patterns for file protoc-gen-openapiv2/options/openapiv2.proto
 
 }
 

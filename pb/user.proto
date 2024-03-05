@@ -3,6 +3,8 @@ syntax = "proto3";
 package pb;
 
 import "github.com/infobloxopen/protoc-gen-gorm/proto/options/gorm.proto";
+import "google/api/annotations.proto";
+import "github.com/infobloxopen/atlas-app-toolkit/rpc/resource/resource.proto";
 
 option go_package = "github.com/sbhagate-infoblox/user.app/pb;pb";
 
@@ -12,7 +14,8 @@ message User {
         multi_account: true
         multi_compartment: true
     };
-    string id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
+    //string id = 1 [(gorm.field).tag = {type: "uuid" primary_key: true}];
+    atlas.rpc.Identifier id = 1 [(gorm.field).tag = {type: "serial"  primary_key: true}];
     string user_name = 2;
 }
 
@@ -25,7 +28,7 @@ message CreateUserResponse {
 }
 
 message ReadUserRequest {
-    string id = 1;
+    atlas.rpc.Identifier id = 1;
 }
 
 message ReadUserResponse {
@@ -41,13 +44,13 @@ message UpdateUserResponse {
 }
 
 message DeleteUserRequest {
-    string id = 1;
+    atlas.rpc.Identifier id = 1;
 }
 
 message DeleteUserResponse{}
 
 message DeleteUserSetRequest {
-    repeated string ids = 1;
+    repeated atlas.rpc.Identifier ids = 1;
 }
 
 message DeleteUserSetResponse{}
@@ -59,19 +62,42 @@ service Users {
     };
 
     // Use this method to create a user.
-    rpc Create (CreateUserRequest) returns (CreateUserResponse);
+    rpc Create (CreateUserRequest) returns (CreateUserResponse){
+        option (google.api.http) = {
+            post: "/create"
+            body: "payload"
+        };
+    }
 
     // Use this method to retrieve the particular user.
-    rpc Read (ReadUserRequest) returns (ReadUserResponse);
+    rpc Read (ReadUserRequest) returns (ReadUserResponse){
+        option (google.api.http) = {
+            get: "/read/{id.resource_id}"
+        };
+    }
 
     // Use this method to update user.
-    rpc Update (UpdateUserRequest) returns (UpdateUserResponse);
+    rpc Update (UpdateUserRequest) returns (UpdateUserResponse){
+        option (google.api.http) = {
+            put: "/update/{payload.id.resource_id}"
+            body: "payload"
+        };
+    }
 
     // Use this method to delete a user.
-    rpc Delete (DeleteUserRequest) returns (DeleteUserResponse) {
+    rpc Delete (DeleteUserRequest) returns (DeleteUserResponse){
+        option (google.api.http) = {
+            delete: "/delete/{id.resource_id}"
+        };
         option (gorm.method).object_type = "User";
     }
-    rpc DeleteSet (DeleteUserSetRequest) returns (DeleteUserSetResponse) {
-        option (gorm.method).object_type = "User";
-    }
+
+
+    // Use this method to delete a user set.
+    //rpc DeleteSet (DeleteUserSetRequest) returns (DeleteUserSetResponse) {
+    //    option (google.api.http) = {
+    //        delete: "/deleteset/{ids}"
+    //    };
+    //    option (gorm.method).object_type = "User";
+    //}
 }

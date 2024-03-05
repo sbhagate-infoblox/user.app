@@ -30,7 +30,6 @@ type UsersClient interface {
 	Update(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	// Use this method to delete a user.
 	Delete(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
-	DeleteSet(ctx context.Context, in *DeleteUserSetRequest, opts ...grpc.CallOption) (*DeleteUserSetResponse, error)
 }
 
 type usersClient struct {
@@ -77,15 +76,6 @@ func (c *usersClient) Delete(ctx context.Context, in *DeleteUserRequest, opts ..
 	return out, nil
 }
 
-func (c *usersClient) DeleteSet(ctx context.Context, in *DeleteUserSetRequest, opts ...grpc.CallOption) (*DeleteUserSetResponse, error) {
-	out := new(DeleteUserSetResponse)
-	err := c.cc.Invoke(ctx, "/pb.Users/DeleteSet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -98,7 +88,6 @@ type UsersServer interface {
 	Update(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	// Use this method to delete a user.
 	Delete(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
-	DeleteSet(context.Context, *DeleteUserSetRequest) (*DeleteUserSetResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -117,9 +106,6 @@ func (UnimplementedUsersServer) Update(context.Context, *UpdateUserRequest) (*Up
 }
 func (UnimplementedUsersServer) Delete(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (UnimplementedUsersServer) DeleteSet(context.Context, *DeleteUserSetRequest) (*DeleteUserSetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteSet not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -206,24 +192,6 @@ func _Users_Delete_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_DeleteSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserSetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UsersServer).DeleteSet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.Users/DeleteSet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).DeleteSet(ctx, req.(*DeleteUserSetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -246,10 +214,6 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Users_Delete_Handler,
-		},
-		{
-			MethodName: "DeleteSet",
-			Handler:    _Users_DeleteSet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

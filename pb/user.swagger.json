@@ -15,7 +15,169 @@
   "produces": [
     "application/json"
   ],
-  "paths": {},
+  "paths": {
+    "/create": {
+      "post": {
+        "summary": "Use this method to create a user.",
+        "operationId": "Users_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateUserResponse",
+              "additionalProperties": null
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus",
+              "additionalProperties": null
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUser",
+              "additionalProperties": null
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/delete/{id.resourceId}": {
+      "delete": {
+        "summary": "Use this method to delete a user.",
+        "operationId": "Users_Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbDeleteUserResponse",
+              "additionalProperties": null
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus",
+              "additionalProperties": null
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id.resourceId",
+            "description": "An application specific resource identity of a resource",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "description": "atlas.api.identifier",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/read/{id.resourceId}": {
+      "get": {
+        "summary": "Use this method to retrieve the particular user.",
+        "operationId": "Users_Read",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbReadUserResponse",
+              "additionalProperties": null
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus",
+              "additionalProperties": null
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id.resourceId",
+            "description": "An application specific resource identity of a resource",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "description": "atlas.api.identifier",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/update/{payload.id.resourceId}": {
+      "put": {
+        "summary": "Use this method to update user.",
+        "operationId": "Users_Update",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateUserResponse",
+              "additionalProperties": null
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus",
+              "additionalProperties": null
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "payload.id.resourceId",
+            "description": "An application specific resource identity of a resource",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUser",
+              "additionalProperties": null
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    }
+  },
   "definitions": {
     "pbCreateUserResponse": {
       "type": "object",
@@ -28,10 +190,6 @@
       "additionalProperties": null
     },
     "pbDeleteUserResponse": {
-      "type": "object",
-      "additionalProperties": null
-    },
-    "pbDeleteUserSetResponse": {
       "type": "object",
       "additionalProperties": null
     },
@@ -60,7 +218,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "additionalProperties": null
+          "additionalProperties": null,
+          "description": "atlas.api.identifier"
         },
         "userName": {
           "type": "string",

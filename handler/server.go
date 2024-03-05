@@ -33,11 +33,11 @@ func (u *UsersServer) Delete(ctx context.Context, in *pb.DeleteUserRequest) (*pb
 }
 
 // DeleteSet implements pb.UsersServer.
-func (u *UsersServer) DeleteSet(ctx context.Context, in *pb.DeleteUserSetRequest) (*pb.DeleteUserSetResponse, error) {
-	log.Println("***DeleteSet***")
-	res, err := u.UsersDefaultServer.DeleteSet(ctx, in)
-	return res, err
-}
+// func (u *UsersServer) DeleteSet(ctx context.Context, in *pb.DeleteUserSetRequest) (*pb.DeleteUserSetResponse, error) {
+// 	log.Println("***DeleteSet***")
+// 	res, err := u.UsersDefaultServer.DeleteSet(ctx, in)
+// 	return res, err
+// }
 
 // Read implements pb.UsersServer.
 func (u *UsersServer) Read(ctx context.Context, in *pb.ReadUserRequest) (*pb.ReadUserResponse, error) {
