@@ -32,6 +32,10 @@ const (
 )
 
 func main() {
+	RunGRPCGatewayAndDBServer()
+}
+
+func RunGRPCGatewayAndDBServer() {
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 	dbSQL, err := sql.Open("postgres", connString)
@@ -46,12 +50,6 @@ func main() {
 		panic(err)
 	}
 
-	// sqlStatement := `INSERT INTO users(account_id, compartment_id, user_name) VALUES ('111', 'CMPRT1', 'Saksham')`
-	// _, err = dbSQL.Exec(sqlStatement)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: dbSQL,
 	}), &gorm.Config{})
@@ -64,12 +62,6 @@ func main() {
 		dbInstance, _ := db.DB()
 		_ = dbInstance.Close()
 	}()
-
-	// listner, err := net.Listen("tcp", "localhost:3000")
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// //s := grpc.NewServer()
 
 	grpcServer, err := handler.NewGRPCServer(db)
 	if err != nil {
@@ -115,38 +107,6 @@ func main() {
 		log.Println(err)
 	}
 
-	/*
-		s, err := server.NewServer(
-			// register our grpc server
-			server.WithGrpcServer(grpcServer),
-			// register the gateway to proxy to the given server address with the service registration endpoints
-			server.WithGateway(
-				gateway.WithGatewayOptions(),
-				gateway.WithDialOptions(
-					[]grpc.DialOption{grpc.WithInsecure(), grpc.WithUnaryInterceptor(
-						grpc_middleware.ChainUnaryClient(
-							[]grpc.UnaryClientInterceptor{
-								gateway.ClientUnaryInterceptor,
-								gateway.PresenceClientInterceptor()}...,
-						),
-					)}...,
-				),
-				gateway.WithServerAddress(fmt.Sprintf("%s:%s", "0.0.0.0", "4000")),
-				gateway.WithEndpointRegistration("/v1/",
-					pb.RegisterUsersHandlerFromEndpoint,
-					// todo fix DEP dependency issue with new recyclebin
-					// ***********
-					// TODO 	master: Could not introduce github.com/Infoblox-CTO/atlas.recyclebin@master,
-					//  as it has a dependency on github.com/grpc-ecosystem/grpc-gateway with constraint ^1.13.0,
-					//  which has no overlap with existing constraint 1.9.6 from (root)
-				),
-			),
-		)
-		if err != nil {
-			log.Println(err)
-		}
-	*/
-
 	// open some listeners for our server and gateway
 	grpcL, err := net.Listen("tcp", fmt.Sprintf("%s:%s", "0.0.0.0", "3000"))
 	if err != nil {
@@ -158,34 +118,42 @@ func main() {
 	}
 
 	s.Serve(grpcL, gatewayL)
+	defer s.HTTPServer.Close()
+}
 
-	// err = s.Serve(listner)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+func ReturnGRPCAndDBServer() (*gorm.DB, *grpc.Server) {
+	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
-	// ctx, cancel := context.WithCancel(context.Background())
-	// defer cancel()
+	dbSQL, err := sql.Open("postgres", connString)
+	if err != nil {
+		panic(err)
+	}
 
-	// grpcMux := runtime.NewServeMux()
+	defer dbSQL.Close()
 
-	// err = pb.RegisterUsersHandlerServer(ctx, grpcMux, s.)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	err = dbSQL.Ping()
+	if err != nil {
+		panic(err)
+	}
 
-	// mux := http.NewServeMux()
-	// mux.Handle("/", grpcMux)
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: dbSQL,
+	}), &gorm.Config{})
 
-	// lis, err := net.Listen("tcp", "localhost:4000")
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	if err != nil {
+		panic(err)
+	}
 
-	// err = http.Serve(lis, mux)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	defer func() {
+		dbInstance, _ := db.DB()
+		_ = dbInstance.Close()
+	}()
+
+	grpcServer, err := handler.NewGRPCServer(db)
+	if err != nil {
+		log.Println(err)
+	}
+	return db, grpcServer
 }
 
 func CustomIncomingHeaderMatcher(k string) (string, bool) {
